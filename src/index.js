@@ -1,9 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './index.css';
 
-import App from './App.jsx';
+import { Provider } from './context/context.js';
+
+import App from './App/App.jsx';
 
 ReactDOM.render(
-  <App />,
+  <Provider>
+    <App />
+  </Provider>,
   document.getElementById('root')
 );
