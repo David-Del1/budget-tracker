@@ -3,7 +3,7 @@ import { Grid } from '@material-ui/core';
 
 import Details from '../components/Details/Details';
 import useStyles from './styles.js';
-import Main from '../components/Details/Main/Main';
+import Main from '../components/Main/Main.jsx';
 
 function App() {
   const classes = useStyles();
