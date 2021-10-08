@@ -3,6 +3,7 @@ import { TextField, Typography, Grid, Button, FormControl, InputLabel, Select, M
 import { v4 as uuidv4 } from 'uuid';
 import { ExpenseTrackerContext } from '../../../context/context';
 import { useSpeechContext } from '@speechly/react-client';
+import SnackBar from '../../SnackBar/Snackbar.jsx';
 
 import useStyles from './styles';
 import { incomeCategories, expenseCategories } from '../../../constants/categories.js';
@@ -20,10 +21,13 @@ function Form() {
   const [formData, setFormData] = useState(initialState);
   const { addTransaction } = useContext(ExpenseTrackerContext);
   const { segment } = useSpeechContext();
+  const [open, setOpen] = useState(false);
 
   const createTransaction = () => {
     if(Number.isNaN(Number(formData.amount)) || !formData.date.includes('-')) return;
     const transaction = { ...formData, amount: Number(formData.amount), id: uuidv4() }
+
+    setOpen(true);
     addTransaction(transaction);
     setFormData(initialState);
   }
@@ -65,6 +69,7 @@ function Form() {
 
   return (
     <Grid container spacing={2}>
+      <SnackBar open={open} setOpen={setOpen} />
       <Grid item xs={12}>
         <Typography 
           align="center" 
