@@ -1,10 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Typography, Grid, Button, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 import { ExpenseTrackerContext } from '../../../context/context';
+import { useSpeechContext } from '@speechly/react-client';
+import SnackBar from '../../SnackBar/Snackbar.jsx';
 
 import useStyles from './styles';
-import { incomeCategories, expenseCategory, expenseCategories } from '../../../constants/categories.js';
+import { incomeCategories, expenseCategories } from '../../../constants/categories.js';
 import formatDate from '../../../utils/formatDate';
 
 const initialState = {
@@ -18,20 +20,64 @@ function Form() {
   const classes = useStyles();
   const [formData, setFormData] = useState(initialState);
   const { addTransaction } = useContext(ExpenseTrackerContext);
+  const { segment } = useSpeechContext();
+  const [open, setOpen] = useState(false);
 
   const createTransaction = () => {
+    if(Number.isNaN(Number(formData.amount)) || !formData.date.includes('-')) return;
     const transaction = { ...formData, amount: Number(formData.amount), id: uuidv4() }
+
+    setOpen(true);
     addTransaction(transaction);
     setFormData(initialState);
   }
+
+  useEffect(() => {
+    if(segment) {
+      if(segment.intent.intent === 'add_expense') setFormData({ ...formData, type: 'Expense' });
+      else if(segment.intent.intent) setFormData({ ...formData, type: 'INCOME' });
+      else if(segment.isFinal && segment.intent.intent === 'create_transaction') return createTransaction();
+      else if(segment.isFinal && segment.intent.intent === "cancel_transaction") return setFormData(initialState);
+
+      segment.entities.forEach(e => {
+        const category = `${e.value.charAt(0)}${e.value.slice(1).toLowerCase()}`
+
+        switch(e.type) {
+          case 'amount':
+            setFormData({ ...formData, amount: e.value });
+            break;
+          case 'category':
+            if(incomeCategories.map(c => c.type).includes(category)) {
+              setFormData({ ...formData, type: 'Income', category });
+
+            } else if(expenseCategories.map(c => c.type).includes(category)) {
+              setFormData({ ...formData, type: 'Expense', category });
+            }
+            break;
+          case 'date':
+            setFormData({ ...formData, category: e.value});
+            break;
+          default:
+            break;
+        }
+      });
+      if(segment.isFinal && formData.amount && formData.category && formData.type && formData.date) createTransaction();
+    }
+  }, [segment]);
 
   const selectedCategories = formData.type === 'Income' ? incomeCategories : expenseCategories
 
   return (
     <Grid container spacing={2}>
+      <SnackBar open={open} setOpen={setOpen} />
       <Grid item xs={12}>
-        <Typography align="center" variant="subtitle2" gutterBottom>
-
+        <Typography 
+          align="center" 
+          variant="subtitle2" 
+          gutterBottom
+          style={{margin: '5px',padding: '6px', backgroundColor: 'whitesmoke', borderRadius: '5px', display: 'flex', alignItems: 'center'}}
+        >
+         <p style={{opacity: 0.6}}>Speech:</p> { segment && segment.words.map(w => w.value).join(" ") }
         </Typography>
       </Grid>
       <Grid item xs={6}>

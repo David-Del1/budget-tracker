@@ -6,6 +6,13 @@
 }
 
 body {
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('./assets/money.png');
-  background-size: cover;
+  background: hsla(185, 96%, 56%, 1);
+
+  background: linear-gradient(45deg, hsla(185, 96%, 56%, 1) 0%, hsla(217, 100%, 50%, 1) 100%);
+
+  background: -moz-linear-gradient(45deg, hsla(185, 96%, 56%, 1) 0%, hsla(217, 100%, 50%, 1) 100%);
+
+  background: -webkit-linear-gradient(45deg, hsla(185, 96%, 56%, 1) 0%, hsla(217, 100%, 50%, 1) 100%);
+
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#23E8FA", endColorstr="#0061FF", GradientType=1 );
 }
