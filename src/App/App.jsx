@@ -15,7 +15,7 @@ function App() {
   const executeScroll = () => main.current.scrollIntoView();
 
   useEffect(() => {
-    if(speechState === speechState.Recording) {
+    if(speechState === SpeechState.Recording) {
       executeScroll();
     }
   }, [speechState])
